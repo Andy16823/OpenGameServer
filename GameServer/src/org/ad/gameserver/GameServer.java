@@ -1,12 +1,15 @@
 package org.ad.gameserver;
 
 import org.ad.gameserver.behaviors.ClientsBehavior;
+import org.ad.gameserver.math.Vec3;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -17,15 +20,20 @@ import java.util.Vector;
  */
 public class GameServer {
     private int port = 9091;
-    private Map<String, String> clients;
+    private Map<String, IGameElement> gameElements;
     private Vector<ServerBehavior> behaviors;
+    private boolean run;
+    private StringBuilder serverLog;
+    public Vector<ServerCallbacks> callbacks;
 
     /**
      * Creates a new game server instance
      */
     public GameServer() {
-        this.clients = new Hashtable<>();
         this.behaviors = new Vector<>();
+        this.gameElements = new Hashtable<>();
+        this.serverLog = new StringBuilder();
+        this.callbacks = new Vector<>();
     }
 
     /**
@@ -33,22 +41,44 @@ public class GameServer {
      * @param port
      */
     public  GameServer(int port) {
-        this.clients = new Hashtable<>();
         this.port = port;
         this.behaviors = new Vector<>();
+        this.serverLog = new StringBuilder();
+        this.callbacks = new Vector<>();
+    }
+
+    public void SetPort(int port) {
+        this.port = port;
+    }
+
+    public boolean isConnected() {
+        return run;
+    }
+
+    public void stopServer() {
+        this.run = false;
+    }
+
+    public void addCallback(ServerCallbacks callback) {
+        this.callbacks.add(callback);
+    }
+
+    public StringBuilder getServerLog() {
+        return serverLog;
     }
 
     /**
      * Starts the game server
      */
     public void StartServer() {
-        System.out.println("Starting Server");
+        log("Starting Server");
         try {
+            run = true;
             ServerSocket socket = new ServerSocket(port);
-            while(true)
+            while(run)
             {
                 Socket client = socket.accept();
-                System.out.println("New connection");
+                log("New connection");
                 ClientHandler handler = new ClientHandler(this, client);
                 new Thread(handler).start();
             }
@@ -57,76 +87,50 @@ public class GameServer {
         }
     }
 
-    /**
-     * Returns the client messages
-     * @return the client messages hash map
-     */
-    public Map<String, String> GetClients() {
-        return this.clients;
+    public Map<String, IGameElement> GetElements() {
+        return this.gameElements;
     }
 
-    /**
-     * Updates the message from a client
-     * @param uuid the client
-     * @param data the message
-     */
-    public void UpdateClient(String uuid, String data) {
-        this.clients.put(uuid, data);
+    public IGameElement getElement(String uuid) {
+        return gameElements.get(uuid);
     }
 
-    /**
-     * Creates an test client
-     * @param name
-     * @param x
-     * @param y
-     * @param z
-     */
     public void AddTestClient(String name, float x, float y, float z) {
-        JSONObject client = new JSONObject();
-
-        JSONObject positon = new JSONObject();
-        positon.put("x", x);
-        positon.put("y", y);
-        positon.put("z", z);
-        client.put("position", positon);
-
-        JSONObject rotation = new JSONObject();
-        positon.put("x", 0f);
-        positon.put("y", 0f);
-        positon.put("z", 0f);
-        client.put("rotation", rotation);
-
-        client.put("uuid", name);
-
-        this.clients.put(name, client.toString());
+        var location = new Vec3(x,y,z);
+        var rotation = new Vec3(0,0,0);
+        var scale = new Vec3(1, 1, 1);
+        var gameElement = new GameElement(name, location, rotation, scale);
+        this.gameElements.put(name, gameElement);
     }
 
-    /**
-     * Get the client messages as string seperated by ";"
-     * @return the client messages as string
-     */
-    public String GetClientsStr() {
-        StringJoiner builder = new StringJoiner(";");
-        for ( Map.Entry<String, String> entry : clients.entrySet() ) {
-            builder.add(entry.getValue());
+    public void addGameElement(IGameElement gameElement) {
+        this.gameElements.put(gameElement.uuid, gameElement);
+    }
+
+    public void removeElement(String uuid) {
+        if(gameElements.containsKey(uuid)) {
+            gameElements.remove(uuid);
         }
-        return builder.toString();
     }
 
     /**
      * Get the client messages as json
      * @return the client messages as json object string
      */
-    public String GetCleintsJson() {
+    public String GetElementsString() {
+        return GetElementsJson().toString();
+    }
+
+    public JSONObject GetElementsJson() {
         JSONArray array = new JSONArray();
-        for ( Map.Entry<String, String> entry : clients.entrySet() ) {
-            JSONObject object = new JSONObject(entry.getValue());
+        for (var entry : gameElements.entrySet() ) {
+            var object = entry.getValue().toJson();
             array.put(object);
         }
         JSONObject root = new JSONObject();
-        root.put("Clients", array);
+        root.put("clients", array);
 
-        return root.toString();
+        return root;
     }
 
     /**
@@ -157,6 +161,27 @@ public class GameServer {
             }
         }
         return null;
+    }
+
+    public String buildResponse(JSONObject response) {
+        JSONObject responseObject = new JSONObject();
+        responseObject.put("timestamp", System.currentTimeMillis());
+        responseObject.put("data", response);
+        return responseObject.toString();
+    }
+
+    public void log(String message) {
+        LocalDateTime now = LocalDateTime.now();
+        String time = now.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+
+        message = "[" + time + "]:" + message;
+
+        this.serverLog.append(message + "\n");
+        System.out.println(message);
+
+        for(var callback : this.callbacks) {
+            callback.onServerLog(this, message);
+        }
     }
 
 }
