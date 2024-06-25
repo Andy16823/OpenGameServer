@@ -23,6 +23,7 @@ public class GameServer {
     private Map<String, IGameElement> gameElements;
     private Vector<ServerBehavior> behaviors;
     private boolean run;
+    private boolean debug = false;
     private StringBuilder serverLog;
     public Vector<ServerCallbacks> callbacks;
 
@@ -171,16 +172,18 @@ public class GameServer {
     }
 
     public void log(String message) {
-        LocalDateTime now = LocalDateTime.now();
-        String time = now.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        if(debug) {
+            LocalDateTime now = LocalDateTime.now();
+            String time = now.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
 
-        message = "[" + time + "]:" + message;
+            message = "[" + time + "]:" + message;
 
-        this.serverLog.append(message + "\n");
-        System.out.println(message);
+            this.serverLog.append(message + "\n");
+            System.out.println(message);
 
-        for(var callback : this.callbacks) {
-            callback.onServerLog(this, message);
+            for(var callback : this.callbacks) {
+                callback.onServerLog(this, message);
+            }
         }
     }
 
