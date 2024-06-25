@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="GameServer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/GameServer_jar</output-path>
+    <root id="archive" name="GameServer.jar">
+      <element id="module-output" name="GameServer" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/json-20240303.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
