@@ -23,9 +23,11 @@ public class GameServer {
     private Map<String, IGameElement> gameElements;
     private Vector<ServerBehavior> behaviors;
     private boolean run;
-    private boolean debug = false;
+    private boolean debug = true;
     private StringBuilder serverLog;
     public Vector<ServerCallbacks> callbacks;
+    private long ticks = 256;
+
 
     /**
      * Creates a new game server instance
@@ -187,4 +189,8 @@ public class GameServer {
         }
     }
 
+    public long nextTick(long lastTick) {
+        long delay = 1000 / ticks;
+        return lastTick + delay;
+    }
 }

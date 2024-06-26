@@ -43,7 +43,8 @@ public class Main implements ServerCallbacks, WindowListener {
         toolBar.add(connectBtn);
 
         textArea = new JTextArea();
-        mainPanel.add(textArea, BorderLayout.CENTER);
+        JScrollPane sp = new JScrollPane(textArea);
+        mainPanel.add(sp, BorderLayout.CENTER);
 
         gameServer.addCallback(this);
 

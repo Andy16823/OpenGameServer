@@ -12,6 +12,7 @@ public class ClientHandler implements Runnable {
     private Socket client;
     private GameServer server;
     private String uuid;
+    private long lastTick;
 
     /**
      * Creates a new instance of the client handler
@@ -21,6 +22,7 @@ public class ClientHandler implements Runnable {
     public ClientHandler(GameServer server, Socket client) {
         this.client = client;
         this.server = server;
+        this.lastTick = System.currentTimeMillis();
     }
 
     public String getUuid() {
@@ -32,21 +34,31 @@ public class ClientHandler implements Runnable {
      */
     @Override
     public void run() {
+
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
             String message;
-            while((message = reader.readLine()) != null && server.isConnected()) {
-                server.log(message);
-                JSONObject object = new JSONObject(message);
 
-                //Command parse
-                if(object.get("cmd").toString().equals("GENERATE_CLIENT_ID")) {
-                    this.uuid = UUID.randomUUID().toString();
-                    this.SendMessage(uuid);
-                }
+            while(server.isConnected()) {
+                long now = System.currentTimeMillis();
+                if(now >= server.nextTick(lastTick)) {
+                    server.log("Tick");
+                    message = reader.readLine();
 
-                for(var behavior : this.server.GetBehaviors()) {
-                    behavior.ParseCommand(this.server, this, object, message);
+                    //server.log(message);
+                    JSONObject object = new JSONObject(message);
+
+                    //Command parse
+                    if(object.get("cmd").toString().equals("GENERATE_CLIENT_ID")) {
+                        this.uuid = UUID.randomUUID().toString();
+                        this.SendMessage(uuid);
+                    }
+
+                    for(var behavior : this.server.GetBehaviors()) {
+                        behavior.ParseCommand(this.server, this, object, message);
+                    }
+
+                    lastTick = System.currentTimeMillis();
                 }
             }
             client.close();
