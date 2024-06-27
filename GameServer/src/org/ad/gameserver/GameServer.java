@@ -27,6 +27,7 @@ public class GameServer {
     private StringBuilder serverLog;
     public Vector<ServerCallbacks> callbacks;
     private long ticks = 128;
+    private long startTime;
 
 
     /**
@@ -78,6 +79,7 @@ public class GameServer {
         try {
             run = true;
             ServerSocket socket = new ServerSocket(port);
+            this.startTime = System.currentTimeMillis();
             while(run)
             {
                 Socket client = socket.accept();
@@ -192,5 +194,13 @@ public class GameServer {
     public long nextTick(long lastTick) {
         long delay = 1000 / ticks;
         return lastTick + delay;
+    }
+
+    public long lastServerTick() {
+        long now = System.currentTimeMillis();
+        long elapsedTime = now - this.startTime;
+        long tickInterval = 1000 / this.ticks;
+        long nextTick = this.startTime + ((elapsedTime / tickInterval) * tickInterval);
+        return nextTick;
     }
 }

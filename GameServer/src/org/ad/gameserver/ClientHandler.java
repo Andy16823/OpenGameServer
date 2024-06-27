@@ -22,7 +22,7 @@ public class ClientHandler implements Runnable {
     public ClientHandler(GameServer server, Socket client) {
         this.client = client;
         this.server = server;
-        this.lastTick = System.currentTimeMillis();
+        this.lastTick = server.lastServerTick();
     }
 
     public String getUuid() {
@@ -42,7 +42,8 @@ public class ClientHandler implements Runnable {
             while(server.isConnected()) {
                 long now = System.currentTimeMillis();
                 if(now >= server.nextTick(lastTick)) {
-                    server.log("Tick");
+                    var ellapsed = now - lastTick;
+                    server.log("Tick Ellapsed time " + ellapsed);
                     message = reader.readLine();
 
                     //server.log(message);
