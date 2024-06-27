@@ -22,12 +22,19 @@ public class ClientsBehavior implements ServerBehavior {
             }
             else {
                 gameElement = new GameElement(uuid, (JSONObject) object.get("promt"));
+                // example server properties
+                gameElement.addProperty("hp", 100);
+                gameElement.addProperty("alive", true);
+                gameElement.addProperty("time_died", 0);
+                gameElement.addProperty("allow_respawn", true);
+                gameElement.addProperty("last_hit", 0);
                 gameServer.addGameElement(gameElement);
             }
 
             gameServer.log("Send clients data to: " + object.get("clientID"));
             gameServer.log("Connections: " + gameServer.GetElements().size());
             var sendData = gameServer.GetElementsJson();
+            //gameServer.log(sendData.toString());
             client.SendMessage(gameServer.buildResponse(sendData));
         }
     }

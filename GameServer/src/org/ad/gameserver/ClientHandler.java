@@ -39,12 +39,13 @@ public class ClientHandler implements Runnable {
             BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
             String message;
 
-            while(server.isConnected()) {
+            while(server.isConnected() && client.isConnected()) {
                 long now = System.currentTimeMillis();
                 if(now >= server.nextTick(lastTick)) {
-                    var ellapsed = now - lastTick;
-                    server.log("Tick Ellapsed time " + ellapsed);
                     message = reader.readLine();
+
+                    if(message == null)
+                        break;
 
                     //server.log(message);
                     JSONObject object = new JSONObject(message);
@@ -67,8 +68,10 @@ public class ClientHandler implements Runnable {
             //throw new RuntimeException(e);
             if(!this.uuid.isEmpty()) {
                 server.removeElement(this.uuid);
+                server.log("Removed Element");
             }
         }
+        server.log("Connection closed");
     }
 
     /**

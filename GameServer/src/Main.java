@@ -2,6 +2,7 @@ import org.ad.gameserver.GameServer;
 import org.ad.gameserver.ServerCallbacks;
 import org.ad.gameserver.behaviors.ClientsBehavior;
 import org.ad.gameserver.behaviors.Debug;
+import org.ad.gameserver.behaviors.ShooterBehavior;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,6 +27,7 @@ public class Main implements ServerCallbacks, WindowListener {
         gameServer = new GameServer();
         gameServer.AddBehavior(new ClientsBehavior());
         gameServer.AddBehavior(new Debug());
+        gameServer.AddBehavior(new ShooterBehavior());
 
         JFrame jFrame = new JFrame("TestServer");
         jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

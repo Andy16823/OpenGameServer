@@ -105,6 +105,11 @@ public class GameServer {
         var rotation = new Vec3(0,0,0);
         var scale = new Vec3(1, 1, 1);
         var gameElement = new GameElement(name, location, rotation, scale);
+        gameElement.addProperty("hp", 100);
+        gameElement.addProperty("alive", true);
+        gameElement.addProperty("time_died", 0);
+        gameElement.addProperty("allow_respawn", true);
+        gameElement.addProperty("last_hit", 0);
         this.gameElements.put(name, gameElement);
     }
 

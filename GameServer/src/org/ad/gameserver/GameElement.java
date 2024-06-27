@@ -7,13 +7,15 @@ import java.util.Hashtable;
 
 public class GameElement extends IGameElement{
 
-    public  GameElement(String uuid, JSONObject jsonObject) {
+    public GameElement(String uuid, JSONObject jsonObject) {
         this.uuid = uuid;
         this.scale = new Vec3(1);
         this.extra = new Hashtable<>();
+        this.properties = new Hashtable<>();
 
         this.location = new Vec3((JSONObject) jsonObject.get("position"));
         this.rotation = new Vec3((JSONObject) jsonObject.get("rotation"));
+        this.scale = new Vec3((JSONObject) jsonObject.get("scale"));
         if(jsonObject.has("extra")) {
             this.parseExtra((JSONObject) jsonObject.get("extra"));
         }
@@ -25,6 +27,7 @@ public class GameElement extends IGameElement{
         this.rotation = rotation;
         this.scale = scale;
         this.extra = new Hashtable<>();
+        this.properties = new Hashtable<>();
     }
 
     @Override
@@ -41,6 +44,13 @@ public class GameElement extends IGameElement{
             extrasJson.put(entry.getKey(), entry.getValue());
         }
         response.put("extra", extrasJson);
+
+        JSONObject propertiesJson = new JSONObject();
+        for(var entry : properties.entrySet()) {
+            propertiesJson.put(entry.getKey(), entry.getValue());
+        }
+        response.put("properties", propertiesJson);
+
         return response;
     }
 
@@ -53,6 +63,8 @@ public class GameElement extends IGameElement{
     public void parseJson(JSONObject jsonObject) {
         this.location.setData((JSONObject) jsonObject.get("position"));
         this.rotation.setData((JSONObject) jsonObject.get("rotation"));
+        this.scale.setData((JSONObject) jsonObject.get("scale"));
+
         if(jsonObject.has("extra")) {
             this.parseExtra((JSONObject) jsonObject.get("extra"));
         }
@@ -68,11 +80,17 @@ public class GameElement extends IGameElement{
     public void updateElement(JSONObject jsonObject) {
         this.location.setData((JSONObject) jsonObject.get("position"));
         this.rotation.setData((JSONObject) jsonObject.get("rotation"));
+        this.scale.setData((JSONObject) jsonObject.get("scale"));
         this.lastUpdate = System.currentTimeMillis();
 
         if(jsonObject.has("extra")) {
             this.parseExtra((JSONObject) jsonObject.get("extra"));
         }
+    }
+
+    @Override
+    public void addProperty(String key, Object object) {
+        this.properties.put(key, object);
     }
 
     private void parseExtra(JSONObject extras)

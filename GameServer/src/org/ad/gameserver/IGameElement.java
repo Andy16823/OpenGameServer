@@ -11,6 +11,7 @@ public abstract class IGameElement {
     public Vec3 rotation;
     public Vec3 scale;
     public Map<String, Object> extra;
+    public Map<String, Object> properties;
     public long lastUpdate = 0;
 
     public abstract JSONObject toJson();
@@ -18,4 +19,5 @@ public abstract class IGameElement {
     public abstract void parseJson(JSONObject jsonObject);
     public abstract void parseJson(String json);
     public abstract void updateElement(JSONObject jsonObject);
+    public abstract void addProperty(String key, Object object);
 }
