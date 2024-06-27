@@ -26,7 +26,7 @@ public class GameServer {
     private boolean debug = true;
     private StringBuilder serverLog;
     public Vector<ServerCallbacks> callbacks;
-    private long ticks = 256;
+    private long ticks = 128;
 
 
     /**
