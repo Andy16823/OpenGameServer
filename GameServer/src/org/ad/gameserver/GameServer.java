@@ -21,6 +21,7 @@ import java.util.Vector;
 public class GameServer {
     private int port = 9091;
     private Map<String, IGameElement> gameElements;
+    private Map<String, Object> properties;
     private Vector<ServerBehavior> behaviors;
     private boolean run;
     private boolean debug = true;
@@ -36,6 +37,7 @@ public class GameServer {
     public GameServer() {
         this.behaviors = new Vector<>();
         this.gameElements = new Hashtable<>();
+        this.properties = new Hashtable<>();
         this.serverLog = new StringBuilder();
         this.callbacks = new Vector<>();
     }
@@ -49,6 +51,7 @@ public class GameServer {
         this.behaviors = new Vector<>();
         this.serverLog = new StringBuilder();
         this.callbacks = new Vector<>();
+        this.properties = new Hashtable<>();
     }
 
     public void SetPort(int port) {
@@ -76,6 +79,11 @@ public class GameServer {
      */
     public void StartServer() {
         log("Starting Server");
+
+        for(var behavior : this.behaviors) {
+            behavior.OnServerStart(this);
+        }
+
         try {
             run = true;
             ServerSocket socket = new ServerSocket(port);
@@ -94,6 +102,10 @@ public class GameServer {
 
     public Map<String, IGameElement> GetElements() {
         return this.gameElements;
+    }
+
+    public Object getProperty(String name) {
+        return this.properties.get(name);
     }
 
     public IGameElement getElement(String uuid) {
@@ -122,6 +134,12 @@ public class GameServer {
             gameElements.remove(uuid);
         }
     }
+
+    public void addProperty(String name, Object object) {
+        this.properties.put(name, object);
+    }
+
+
 
     /**
      * Get the client messages as json

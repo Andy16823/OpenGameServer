@@ -14,6 +14,11 @@ import java.util.UUID;
  */
 public class Debug implements ServerBehavior {
 
+    @Override
+    public void OnServerStart(GameServer server) {
+
+    }
+
     /**
      * Parse the commands from the client
      * @param gameServer the server class
@@ -22,7 +27,7 @@ public class Debug implements ServerBehavior {
      * @param rawmsg the raw client message
      */
     @Override
-    public void ParseCommand(GameServer gameServer, ClientHandler client, JSONObject request, String rawmsg) {
+    public void ParseCommand(GameServer gameServer, ClientHandler client, JSONObject request, JSONObject response, String rawmsg) {
         if(request.get("cmd").toString().equals("GET_CLIENTS")) {
             System.out.println("Sending Client data");
             client.SendMessage(gameServer.buildResponse(gameServer.GetElementsJson()));

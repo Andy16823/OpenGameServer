@@ -48,18 +48,22 @@ public class ClientHandler implements Runnable {
                         break;
 
                     //server.log(message);
-                    JSONObject object = new JSONObject(message);
+                    JSONObject request = new JSONObject(message);
+                    JSONObject response = new JSONObject();
 
                     //Command parse
-                    if(object.get("cmd").toString().equals("GENERATE_CLIENT_ID")) {
+                    if(request.get("cmd").toString().equals("GENERATE_CLIENT_ID")) {
                         this.uuid = UUID.randomUUID().toString();
                         this.SendMessage(uuid);
                     }
 
                     for(var behavior : this.server.GetBehaviors()) {
-                        behavior.ParseCommand(this.server, this, object, message);
+                        behavior.ParseCommand(this.server, this, request, response, message);
                     }
 
+                    var responseMessage = this.server.buildResponse(response);
+                    server.log(responseMessage);
+                    this.SendMessage(responseMessage);
                     lastTick = System.currentTimeMillis();
                 }
             }

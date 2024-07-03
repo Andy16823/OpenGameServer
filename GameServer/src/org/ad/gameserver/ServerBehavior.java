@@ -11,5 +11,7 @@ import java.net.Socket;
  * You can inherit from this interface to create own command parsers.
  */
 public interface ServerBehavior {
-    public void ParseCommand(GameServer gameServer, ClientHandler client, JSONObject request, String rawmsg);
+
+    public void OnServerStart(GameServer server);
+    public void ParseCommand(GameServer gameServer, ClientHandler client, JSONObject request, JSONObject response, String rawmsg);
 }
