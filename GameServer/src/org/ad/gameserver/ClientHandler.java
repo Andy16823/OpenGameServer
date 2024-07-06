@@ -62,7 +62,7 @@ public class ClientHandler implements Runnable {
                     }
 
                     var responseMessage = this.server.buildResponse(response);
-                    server.log(responseMessage);
+
                     this.SendMessage(responseMessage);
                     lastTick = System.currentTimeMillis();
                 }
@@ -70,7 +70,7 @@ public class ClientHandler implements Runnable {
             client.close();
         } catch (IOException e) {
             //throw new RuntimeException(e);
-            if(!this.uuid.isEmpty()) {
+            if(this.uuid != null && !this.uuid.isEmpty()) {
                 server.removeElement(this.uuid);
                 server.log("Removed Element");
             }

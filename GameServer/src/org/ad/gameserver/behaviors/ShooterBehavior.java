@@ -35,7 +35,7 @@ public class ShooterBehavior implements ServerBehavior {
                                 Random random = new Random();
                                 var spawnId = random.nextInt(spawns.size());
                                 var spawn = spawns.get(spawnId);
-                                e.location = spawn;
+                                //e.location = spawn;
 
                                 /// Check if its working with 1 entity
                                 JSONObject respawn = new JSONObject();
