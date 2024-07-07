@@ -62,7 +62,7 @@ public class ClientHandler implements Runnable {
                     }
 
                     var responseMessage = this.server.buildResponse(response);
-
+                    System.out.println(responseMessage);
                     this.SendMessage(responseMessage);
                     lastTick = System.currentTimeMillis();
                 }

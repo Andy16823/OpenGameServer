@@ -104,6 +104,22 @@ public class ShooterBehavior implements ServerBehavior {
         this.loadMap("map.ultra", server);
     }
 
+    private void hitTarget(GameServer server, String uuid, int damage) {
+        var element = server.getElement(uuid);
+        if(element != null) {
+            int currentHealth = (int) element.properties.get("hp");
+            currentHealth -= damage;
+            System.out.println(damage);
+            if(currentHealth <= 0) {
+                currentHealth = 0;
+                element.properties.put("alive", false);
+                element.properties.put("time_died", System.currentTimeMillis());
+            }
+            element.properties.put("hp", currentHealth);
+            System.out.println("hit3");
+        }
+    }
+
     @Override
     public void ParseCommand(GameServer gameServer, ClientHandler client, JSONObject object, JSONObject response, String rawmsg) {
 
@@ -114,21 +130,20 @@ public class ShooterBehavior implements ServerBehavior {
         if(object.get("cmd").toString().equals("SAY_HELLO")) {
             System.out.println("hello client");
         }
+        else if(object.get("cmd").toString().equals("SET_CLIENT_DATA")) {
+            JSONObject promt = (JSONObject) object.get("promt");
+            JSONObject extras = (JSONObject) promt.get("extra");
+            boolean isHit = (boolean) extras.get("isHit");
+            if(isHit) {
+                String hitTarget = (String) extras.get("hitTarget");
+                int damage = (int) extras.get("damage");
+                hitTarget(gameServer, hitTarget, damage);
+            }
+        }
         else if(object.get("cmd").toString().equals("ENEMY_HIT")) {
             JSONObject dataTable = (JSONObject) object.get("data");
             String enemyUuid = (String) dataTable.get("enemyUuid");
-            var element = gameServer.getElement(enemyUuid);
-            if(element != null) {
-                int currentHealth = (int) element.properties.get("hp");
-                int damage = dataTable.getInt("damage");
-                currentHealth -= damage;
-                if(currentHealth <= 0) {
-                    currentHealth = 0;
-                    element.properties.put("alive", false);
-                    element.properties.put("time_died", System.currentTimeMillis());
-                }
-                element.properties.put("hp", currentHealth);
-            }
+
         }
         response.put("shooterBehavior", behaviorResponse);
     }
